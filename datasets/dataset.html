@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title> - OpenGWAS</title>
+  <title>OpenGWAS</title>
   <link rel="shortcut icon" type="image/png" sizes="32x32" href="../images/logo/opengwas/favicon.ico" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
@@ -42,40 +42,85 @@
 <body>
   <div id="header"></div>
 
+  <div id="copyToast" class="toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none;">
+    <div class="d-flex">
+      <div class="toast-body">
+        Copied to clipboard!
+      </div>
+    </div>
+  </div>
+
   <main class="container" style="max-width: 1000px">
     <div id="loading">Loading dataset details...</div>
     <div id="error" style="display:none;"></div>
     <div class="row">
       <div class="col-8">
-        <h1 id="trait">Loading...</h1>
+        <h3 id="trait">Loading...</h1>
         <h6 class="text-muted">
           OpenGWAS ID:
-          <code id="gwasId" role="button" class="text-primary" title="Click to copy">Loading...</code>
+          <code id="gwasId" role="button" class="text-primary copyable" title="Click to copy">Loading...</code>
         </h6>
-        <div id="copyToast" class="toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none;">
-          <div class="d-flex">
-            <div class="toast-body">
-              Copied to clipboard!
-            </div>
-          </div>
-        </div>
         <table id="detailTable" class="table table-sm table-striped" style="display:none;">
-          <thead><tr><th>Field</th><th>Value</th></tr></thead>
+          <thead><tr><th width="30%">Field</th><th>Value</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
       <div class="col">
-        <p></p>
+        <div>
+          <div class="btn-group">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Download
+              <div id="loadingSpinner" class="text-center" style="display: none;">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" id="getReportBtn">QC Report</a></li>
+              <li><a class="dropdown-item" href="#" id="getVcfBtn">VCF Files <small>*daily limit applies</small></a></li>
+            </ul>
+          </div>
+          <div class="modal fade" id="vcfModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="vcfModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="vcfModalLabel">VCF Download Links</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div>The link(s) will be valid for 2 hours. Click on a link to copy to clipboard.</div>
+                  <div id="vcfLinksContainer">
+                    <!-- links will be inserted here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fw-light lh-sm mt-2">
+          <p class="mb-1">You can only download VCF files of 20 datasets per day on this website. For automated queries please use one of the following - in any case you will need to generate a <a href="https://api.opengwas.io/api/#authentication" target="_blank">token (JWT)</a>:
+            <ul>
+              <li><a href="https://mrcieu.github.io/ieugwasr/reference/gwasinfo_files.html" target="_blank"><code>ieugwasr::gwasinfo_files()</code></a></li>
+              <li><a href="https://mrcieu.github.io/ieugwaspy/query.html#ieugwaspy.query.gwasinfo_files" target="_blank"><code>ieugwaspy.gwasinfo_files()</code></a></li>
+              <li><a href="https://api.opengwas.io/api/docs" target="_blank">OpenGWAS API</a> (build your own wrapper)</li>
+            </ul>
+          </p>
+        </div>
         <hr>
         <h5>Relevant datasets</h5>
-        <small>recommended by <a href="https://api.epigraphdb.org/#/OpenGWAS/get_gwas_recommender_opengwas_search_id_get">EpiGraphDB</a></small><br>
-        (none)
+        <div class="list-group">
+          (none)
+          <!-- <a href="#" class="list-group-item list-group-item-action">A second link item</a> -->
+        </div>
+        <div class="fw-light lh-sm mt-2">recommended by <a href="https://api.epigraphdb.org/#/OpenGWAS/get_gwas_recommender_opengwas_search_id_get" target="_blank">EpiGraphDB</a></small><br>
       </div>
     </div>
   </main>
 
   <div id="footer"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js" integrity="sha512-Tc0i+vRogmX4NN7tuLbQfBxa8JkfUSAxSFVzmU31nVdHyiHElPPy2cWfFacmCJKw0VqovrzKhdd2TSTMdAxp2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script type="module">
     import { includeHTML } from '../js/include.js';
     import { loadData } from '../js/gwas-storage.js';
@@ -83,55 +128,21 @@
     includeHTML('#header', '/common/header.html');
     includeHTML('#footer', '/common/footer.html');
 
-    document.getElementById("gwasId").addEventListener("click", function () {
-      const text = this.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById("copyToast");
-        toast.style.display = "block";
-        setTimeout(() => {
-          toast.style.display = "none";
-        }, 1500);
-      });
-    });
-
-    const mainFieldsOrder = [
-      'trait',
-      'build',
-      'category',
-      'subcategory',
-      'population',
-      'sex',
-      'author',
-      'year',
-      'ontology',
-      'unit',
-      'sample_size',
-      'consortium',
-      'mr',
-      'priority',
-    ];
+    let gwasId = null;
+    const filesTrialUrl = "http://localhost:8019/api/gwasinfo/files/trial";
 
     function getDatasetIdFromUrl() {
       const params = new URLSearchParams(window.location.search);
       return params.get('id');
     }
 
-    const mainFieldIndex = {
-      trait: 0,
-      build: 1,
-      category: 2,
-      subcategory: 3,
-      population: 4,
-      sex: 5,
-      author: 6,
-      year: 7,
-      ontology: 8,
-      unit: 9,
-      sample_size: 10,
-      consortium: 11,
-      mr: 12,
-      priority: 13,
-    };
+    gwasId = getDatasetIdFromUrl();
+
+    const mainFieldsOrder = ['trait', 'build', 'category', 'subcategory', 'population', 'sex', 'author', 'year', 'ontology', 'unit', 'sample_size', 'consortium', 'mr', 'priority'];
+
+    const mainFieldIndex = Object.fromEntries(
+      mainFieldsOrder.map((field, idx) => [field, idx])
+    );
 
     function decodeField(value, field, majorityCoding) {
       if (
@@ -173,10 +184,11 @@
       return detail;
     }
 
-    function renderDetailTable(detail) {
+    function renderDetail(detail) {
       const tbody = document.querySelector('#detailTable tbody');
       tbody.innerHTML = '';
 
+      document.title = `${gwasId} - ${detail.trait} - OpenGWAS`;
       document.getElementById('trait').textContent = detail.trait || '';
 
       const rendered = new Set();
@@ -216,11 +228,10 @@
     }
 
     async function main() {
-      const id = getDatasetIdFromUrl();
       const loadingDiv = document.getElementById('loading');
       const errorDiv = document.getElementById('error');
 
-      if (!id) {
+      if (!gwasId) {
         loadingDiv.style.display = 'none';
         errorDiv.style.display = '';
         errorDiv.textContent = 'Error: No dataset ID specified in URL.';
@@ -229,9 +240,9 @@
 
       try {
         const jsonData = await loadData(() => {});
-        const detail = buildDetailData(id, jsonData);
+        const detail = buildDetailData(gwasId, jsonData);
         loadingDiv.style.display = 'none';
-        renderDetailTable(detail);
+        renderDetail(detail);
       } catch (err) {
         loadingDiv.style.display = 'none';
         errorDiv.style.display = '';
@@ -240,6 +251,90 @@
     }
 
     main();
+
+    function showSpinner() {
+      document.getElementById("loadingSpinner").style.display = "inline";
+    }
+
+    function hideSpinner() {
+      document.getElementById("loadingSpinner").style.display = "none";
+    }
+
+    function postData(url, payload) {
+      showSpinner();
+      return fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      }).then(async res => {
+        hideSpinner();
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || `HTTP ${res.status}`);
+        }
+        return res.json();
+      });
+    }
+
+    document.getElementById("getReportBtn").addEventListener("click", async () => {
+      try {
+        const result = await postData(filesTrialUrl, { id: gwasId, type: "report" });
+        if (result.length === 1) {
+          window.open(result[0], "_blank");
+        } else {
+          alert("Report is unavailable for this dataset.");
+        }
+      } catch (err) {
+        alert("Failed to fetch report: " + err.message);
+      }
+    });
+
+    document.getElementById("getVcfBtn").addEventListener("click", async () => {
+      try {
+        const result = await postData(filesTrialUrl, { id: gwasId, type: "vcf" });
+        if (result.length === 0) {
+          alert("VCF is unavailable for this dataset.");
+          return;
+        }
+
+        // Clear previous and render links
+        const container = document.getElementById("vcfLinksContainer");
+        container.innerHTML = "";
+        result.forEach((url) => {
+          const linkDiv = document.createElement("div");
+          linkDiv.textContent = url;
+          linkDiv.className = "copyable text-primary text-break mb-2";
+          linkDiv.title = "Click to copy";
+          container.appendChild(linkDiv);
+        });
+
+        bindCopyHandlers();  // Make them copyable
+        new bootstrap.Modal(document.getElementById("vcfModal")).show();
+
+      } catch (err) {
+        alert("Failed to fetch VCF: " + err.message);
+      }
+    });
+
+    function showCopyToast() {
+      const toast = document.getElementById("copyToast");
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 1500);
+    }
+
+    function bindCopyHandlers() {
+      document.querySelectorAll('.copyable').forEach(el => {
+        el.onclick = () => {
+          const text = el.dataset.copyText || el.textContent;
+          navigator.clipboard.writeText(text).then(showCopyToast);
+        };
+      });
+    }
+
+    bindCopyHandlers();
+
   </script>
 </body>
 </html>
