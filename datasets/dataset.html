@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title> - OpenGWAS</title>
+  <link rel="shortcut icon" type="image/png" sizes="32x32" href="../images/logo/opengwas/favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main.container {
+      flex: 1 0 auto;
+      max-width: 900px;
+      margin-top: 1rem;
+    }
+    table {
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+    td:first-child {
+      width: 180px;
+      font-weight: 600;
+      vertical-align: top;
+    }
+    td:last-child {
+      white-space: normal;
+    }
+    #loading {
+      margin: 1rem 0;
+      font-style: italic;
+    }
+    #error {
+      color: red;
+      margin: 1rem 0;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <main class="container" style="max-width: 1000px">
+    <div id="loading">Loading dataset details...</div>
+    <div id="error" style="display:none;"></div>
+    <div class="row">
+      <div class="col-8">
+        <h1 id="trait">Loading...</h1>
+        <h6 class="text-muted">
+          OpenGWAS ID:
+          <code id="gwasId" role="button" class="text-primary" title="Click to copy">Loading...</code>
+        </h6>
+        <div id="copyToast" class="toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999; display: none;">
+          <div class="d-flex">
+            <div class="toast-body">
+              Copied to clipboard!
+            </div>
+          </div>
+        </div>
+        <table id="detailTable" class="table table-sm table-striped" style="display:none;">
+          <thead><tr><th>Field</th><th>Value</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="col">
+        <p></p>
+        <hr>
+        <h5>Relevant datasets</h5>
+        <small>recommended by <a href="https://api.epigraphdb.org/#/OpenGWAS/get_gwas_recommender_opengwas_search_id_get">EpiGraphDB</a></small><br>
+        (none)
+      </div>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module">
+    import { includeHTML } from '../js/include.js';
+    import { loadData } from '../js/gwas-storage.js';
+
+    includeHTML('#header', '/common/header.html');
+    includeHTML('#footer', '/common/footer.html');
+
+    document.getElementById("gwasId").addEventListener("click", function () {
+      const text = this.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById("copyToast");
+        toast.style.display = "block";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 1500);
+      });
+    });
+
+    const mainFieldsOrder = [
+      'trait',
+      'build',
+      'category',
+      'subcategory',
+      'population',
+      'sex',
+      'author',
+      'year',
+      'ontology',
+      'unit',
+      'sample_size',
+      'consortium',
+      'mr',
+      'priority',
+    ];
+
+    function getDatasetIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    const mainFieldIndex = {
+      trait: 0,
+      build: 1,
+      category: 2,
+      subcategory: 3,
+      population: 4,
+      sex: 5,
+      author: 6,
+      year: 7,
+      ontology: 8,
+      unit: 9,
+      sample_size: 10,
+      consortium: 11,
+      mr: 12,
+      priority: 13,
+    };
+
+    function decodeField(value, field, majorityCoding) {
+      if (
+        majorityCoding[field] &&
+        typeof value === 'number' &&
+        value >= 0 &&
+        value < majorityCoding[field].length
+      ) {
+        return majorityCoding[field][value];
+      }
+      return value === null ? '(null)' : value;
+    }
+
+    function buildDetailData(id, json) {
+      const majorityCoding = json.majority_fields_and_coding;
+      const compressed = json.datasets_compressed;
+
+      if (id in compressed) {
+        document.getElementById("gwasId").textContent = id;
+      } else {
+        throw new Error(`Dataset ID "${id}" not found`);
+      }
+
+      const [mainArr, additionalObj] = compressed[id];
+      const detail = {};
+
+      for (const field of mainFieldsOrder) {
+        const idx = mainFieldIndex[field];
+        const rawValue = mainArr[idx];
+        detail[field] = decodeField(rawValue, field, majorityCoding);
+      }
+
+      if (additionalObj && typeof additionalObj === 'object') {
+        for (const [k, v] of Object.entries(additionalObj)) {
+          detail[k] = v === null ? 'NA' : v;
+        }
+      }
+
+      return detail;
+    }
+
+    function renderDetailTable(detail) {
+      const tbody = document.querySelector('#detailTable tbody');
+      tbody.innerHTML = '';
+
+      document.getElementById('trait').textContent = detail.trait || '';
+
+      const rendered = new Set();
+
+      function addRow(field, value) {
+        const tr = document.createElement('tr');
+        const tdField = document.createElement('td');
+        const tdValue = document.createElement('td');
+
+        tdField.textContent = field;
+        if (typeof value === 'object' && value !== null) {
+          tdValue.textContent = JSON.stringify(value, null, 2);
+          tdValue.style.whiteSpace = 'pre-wrap';
+        } else {
+          tdValue.textContent = value;
+        }
+
+        tr.appendChild(tdField);
+        tr.appendChild(tdValue);
+        tbody.appendChild(tr);
+      }
+
+      mainFieldsOrder.forEach(field => {
+        if (field in detail) {
+          addRow(field, detail[field]);
+          rendered.add(field);
+        }
+      });
+
+      Object.entries(detail).forEach(([field, value]) => {
+        if (!rendered.has(field)) {
+          addRow(field, value);
+        }
+      });
+
+      document.getElementById('detailTable').style.display = '';
+    }
+
+    async function main() {
+      const id = getDatasetIdFromUrl();
+      const loadingDiv = document.getElementById('loading');
+      const errorDiv = document.getElementById('error');
+
+      if (!id) {
+        loadingDiv.style.display = 'none';
+        errorDiv.style.display = '';
+        errorDiv.textContent = 'Error: No dataset ID specified in URL.';
+        return;
+      }
+
+      try {
+        const jsonData = await loadData(() => {});
+        const detail = buildDetailData(id, jsonData);
+        loadingDiv.style.display = 'none';
+        renderDetailTable(detail);
+      } catch (err) {
+        loadingDiv.style.display = 'none';
+        errorDiv.style.display = '';
+        errorDiv.textContent = 'Error loading dataset: ' + err.message;
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

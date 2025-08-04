@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GWAS Dataset Table</title>
+  <link rel="shortcut icon" type="image/png" sizes="32x32" href="../images/logo/opengwas/favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.2/b-3.2.4/b-html5-3.2.4/datatables.min.css" rel="stylesheet" integrity="sha384-da1RzZN/J6BPsPORWFErAk8mFOaYQkGbWJeiVnME5UhVhp5v/SwUha/qcgYTjAPJ" crossorigin="anonymous">
+  <style>
+    .wrap-text {
+      white-space: normal !important;
+      word-break: break-word;
+    }
+  </style>
+</head>
+
+<body class="d-md-flex flex-column h-100">
+  <div id="header"></div>
+
+  <main class="container" style="max-width: 1000px">
+    <div id="progress"></div>
+    <h1>GWAS Datasets</h1>
+    <table id="gwasTable" class="display table table-striped table-sm" style="width: 100%;">
+      <thead>
+        <tr>
+          <th>OpenGWAS ID</th>
+          <th>Trait</th>
+          <th>Year</th>
+          <th>Author</th>
+          <th>Consortium</th>
+          <th>Sample Size</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="footer"></div>
+
+  <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.2/b-3.2.4/b-html5-3.2.4/datatables.min.js" integrity="sha384-cTeXLnfaSbI/49ovkPyA4Ux8hZn9H8GdEQme7QVQcJl1b6vwvbEJ0szdHcs5W0He" crossorigin="anonymous"></script>
+  <script type="module">
+    import { includeHTML } from '../js/include.js';
+    import { loadData } from '../js/gwas-storage.js';
+
+    includeHTML('#header', '/common/header.html');
+    includeHTML('#footer', '/common/footer.html');
+
+    function extractTableData(compressedData) {
+      const keys = Object.keys(compressedData);
+      const fields = ['trait', 'year', 'author', 'consortium', 'sample_size'];
+      const fieldIndex = {
+        trait: 0,
+        year: 7,
+        author: 6,
+        consortium: 11,
+        sample_size: 10,
+      };
+      return keys.map(id => {
+        const arr = compressedData[id][0];
+        return [
+          id,
+          arr[fieldIndex.trait],
+          arr[fieldIndex.year],
+          arr[fieldIndex.author],
+          arr[fieldIndex.consortium],
+          arr[fieldIndex.sample_size],
+        ];
+      }).sort(() => Math.random() - 0.5);
+    }
+
+    function populateTable(tableData) {
+      $('#gwasTable').DataTable({
+        data: tableData,
+        columnDefs: [
+          {
+            targets: 0,
+            width: '130px',
+            className: 'wrap-text',
+          },
+          {
+            targets: 1,
+            width: '300px',
+            className: 'wrap-text',
+          },
+          {
+            targets: 3,
+            width: '150px',
+            className: 'wrap-text',
+          },
+          {
+            targets: 4,
+            width: '110px',
+            className: 'wrap-text',
+          },
+        ],
+        pageLength: 25,
+        scrollX: true,
+        order: [],
+        layout: {
+            topStart: 'search',
+            topEnd: {
+              buttons: [{
+                extend: 'csv',
+                text: 'Export current results CSV',
+                className: 'btn btn-sm btn-light',
+              }]
+            },
+            bottomStart: 'info',
+            bottomEnd: 'paging'
+        },
+        language: {
+          lengthMenu: "Show _MENU_ datasets",
+          info: "Showing _START_ to _END_ of _TOTAL_ datasets",
+          infoFiltered: "(filtered from _MAX_ total datasets)",
+          infoEmpty: "Showing 0 to 0 of 0 datasets",
+          zeroRecords: "No matching datasets found",
+        },
+      });
+    }
+
+    const progressDiv = document.getElementById('progress');
+
+    loadData(progress => {
+      console.log(`Download progress: ${progress}%`);
+      progressDiv.textContent = `Loading: ${progress}%`;
+    }).then(jsonData => {
+      const tableData = extractTableData(jsonData['datasets_compressed']);
+      populateTable(tableData);
+    }).catch(err => {
+      console.error('Failed to load data:', err);
+      progressDiv.textContent = 'Failed to load data';
+    });
+  </script>
+
+</body>
+</html>
