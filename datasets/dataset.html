@@ -239,8 +239,8 @@
       }
 
       try {
-        const jsonData = await loadData(() => {});
-        const detail = buildDetailData(gwasId, jsonData);
+        const gwasinfo = await loadData('gwasinfo', () => {});
+        const detail = buildDetailData(gwasId, gwasinfo);
         loadingDiv.style.display = 'none';
         renderDetail(detail);
       } catch (err) {
