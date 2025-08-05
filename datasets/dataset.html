@@ -135,7 +135,12 @@
 
     function getDatasetIdFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      return params.get('id');
+      let id = params.get('id');
+      if (id) {
+        return id;
+      }
+      const pathSegments = window.location.pathname.split('/');
+      return pathSegments[pathSegments.length - 1] || null;
     }
 
     gwasId = getDatasetIdFromUrl();
@@ -275,6 +280,9 @@
           throw new Error(text || `HTTP ${res.status}`);
         }
         return res.json();
+      }).catch(err => {
+        hideSpinner();
+        throw err;
       });
     }
 
