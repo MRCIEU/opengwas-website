@@ -15,22 +15,23 @@
   </style>
 </head>
 
-<body class="d-md-flex flex-column h-100">
+<body>
   <div id="header"></div>
 
-  <main class="container" style="max-width: 1000px">
+  <main class="container mt-3" style="max-width: 1000px">
     <h3>Datasets</h3>
-
-    <p>
-      <span id="notes"></span>
-      <a class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBatches" aria-expanded="false" aria-controls="collapseBatches">
-        Show or hide batches
-      </a>
-    </p>
 
     <div class="progress" role="progressbar" aria-label="Loading in progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
       <div id="progress" class="progress-bar progress-bar-animated" id="progress" style="width: 0%">0%</div>
     </div>
+
+    <div class="d-flex align-items-center">
+      <span id="notes"></span>
+      <a class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBatches" aria-expanded="false" aria-controls="collapseBatches">
+        Show or hide batches
+      </a>
+    </div>
+
     <div class="collapse" id="collapseBatches">
       <div class="card card-body" style="height: 400px; overflow-y: auto;">
         <table class="display table table-striped table-sm" style="width: 100%;">
@@ -75,6 +76,8 @@
       document.getElementById('footerYear').textContent = new Date().getFullYear();
     });
 
+    const isProduction = ['opengwas.io'].includes(window.location.hostname);
+
     function extractTableData(compressedData) {
       const keys = Object.keys(compressedData);
       const fields = ['trait', 'year', 'author', 'consortium', 'sample_size'];
@@ -107,7 +110,8 @@
             width: '130px',
             className: 'wrap-text',
             render : (data, type, row) => {
-              return `<a href="/datasets/dataset.html?id=${data}" target="_blank">${data}</a>`;
+              const href = isProduction ? `/datasets/${data}` : `/datasets/dataset.html?id=${data}`;
+              return `<a href="${href}" target="_blank">${data}</a>`;
             }
           },
           {
@@ -159,7 +163,7 @@
         const row = document.createElement('tr');
 
         row.innerHTML = `
-          <td>${batch.id}</td>
+          <td><a href="#" class="batch-filter-link" data-id="${batch.id}">${batch.id}</a></td>
           <td>${batch.count.toLocaleString()}</td>
           <td>${batch.description}</td>
           <td><a href="${batch.link}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></td>
@@ -167,8 +171,16 @@
 
         tbody.appendChild(row);
       });
-    }
 
+      tbody.querySelectorAll('.batch-filter-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const id = e.target.dataset.id;
+          const table = $('#gwasTable').DataTable();
+          table.search(id).draw();
+        });
+      });
+    }
 
     const progressBar = document.getElementById('progress');
     const notes = document.getElementById('notes');

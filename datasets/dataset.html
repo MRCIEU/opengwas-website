@@ -5,37 +5,10 @@
   <title>OpenGWAS</title>
   <link rel="shortcut icon" type="image/png" sizes="32x32" href="../images/logo/opengwas/favicon.ico" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    main.container {
-      flex: 1 0 auto;
-      max-width: 900px;
-      margin-top: 1rem;
-    }
-    table {
-      table-layout: fixed;
-      word-wrap: break-word;
-    }
     td:first-child {
-      width: 180px;
-      font-weight: 600;
-      vertical-align: top;
-    }
-    td:last-child {
-      white-space: normal;
-    }
-    #loading {
-      margin: 1rem 0;
-      font-style: italic;
-    }
-    #error {
-      color: red;
-      margin: 1rem 0;
-      font-weight: 600;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -50,9 +23,11 @@
     </div>
   </div>
 
-  <main class="container" style="max-width: 1000px">
-    <div id="loading">Loading dataset details...</div>
-    <div id="error" style="display:none;"></div>
+  <main class="container mt-3" style="max-width: 1000px">
+    <div class="progress mb-3" role="progressbar" aria-label="Loading in progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      <div id="progress" class="progress-bar progress-bar-animated" id="progress" style="width: 0%">0%</div>
+    </div>
+
     <div class="row">
       <div class="col-8">
         <h3 id="trait">Loading...</h1>
@@ -108,12 +83,15 @@
           </p>
         </div>
         <hr>
-        <h5>Relevant datasets</h5>
+        <!-- <h5>Relevant datasets</h5>
         <div class="list-group">
           (service unavailable)
-          <!-- <a href="#" class="list-group-item list-group-item-action">A second link item</a> -->
+          <a href="#" class="list-group-item list-group-item-action">A second link item</a>
         </div>
-        <div class="fw-light lh-sm mt-2">recommended by <a href="https://api.epigraphdb.org/#/OpenGWAS/get_gwas_recommender_opengwas_search_id_get" target="_blank">EpiGraphDB</a></small><br>
+        <div class="fw-light lh-sm mt-2">recommended by <a href="https://api.epigraphdb.org/#/OpenGWAS/get_gwas_recommender_opengwas_search_id_get" target="_blank">EpiGraphDB</a></small><br> -->
+      </div>
+      <div>
+        <a href="/datasets" target="_blank" class="icon-link"><i class="bi bi-arrow-90deg-up"></i> Back to all datasets</a>
       </div>
     </div>
   </main>
@@ -130,26 +108,17 @@
       document.getElementById('footerYear').textContent = new Date().getFullYear();
     });
 
-    let gwasId = null;
     const gwasinfoFilesTrialUrl = "https://api.opengwas.io/api/gwasinfo/files/trial";
-
-    function getDatasetIdFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      let id = params.get('id');
-      if (id) {
-        return id;
-      }
-      const pathSegments = window.location.pathname.split('/');
-      return pathSegments[pathSegments.length - 1] || null;
-    }
-
-    gwasId = getDatasetIdFromUrl();
 
     const mainFieldsOrder = ['trait', 'build', 'category', 'subcategory', 'population', 'sex', 'author', 'year', 'ontology', 'unit', 'sample_size', 'consortium', 'mr', 'priority'];
 
     const mainFieldIndex = Object.fromEntries(
       mainFieldsOrder.map((field, idx) => [field, idx])
     );
+
+    const gwasId = (() => {
+      return (new URLSearchParams(location.search)).get('id') || location.pathname.split('/').filter(Boolean).pop() || null;
+    })();
 
     function decodeField(value, field, majorityCoding) {
       if (
@@ -170,7 +139,7 @@
       if (id in compressed) {
         document.getElementById("gwasId").textContent = id;
       } else {
-        throw new Error(`Dataset ID "${id}" not found`);
+        throw new Error(`ID "${id}" not found`);
       }
 
       const [mainArr, additionalObj] = compressed[id];
@@ -234,30 +203,24 @@
       document.getElementById('detailTable').style.display = '';
     }
 
-    async function main() {
-      const loadingDiv = document.getElementById('loading');
-      const errorDiv = document.getElementById('error');
+    (async () => {
+      const progressBar = document.getElementById('progress');
 
-      if (!gwasId) {
-        loadingDiv.style.display = 'none';
-        errorDiv.style.display = '';
-        errorDiv.textContent = 'Error: No dataset ID specified in URL.';
-        return;
-      }
-
-      try {
-        const gwasinfo = await loadData('gwasinfo', () => {});
+      loadData('gwasinfo', progress => {
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = `${progress}%`;
+      }).then(gwasinfo => {
         const detail = buildDetailData(gwasId, gwasinfo);
-        loadingDiv.style.display = 'none';
+        progressBar.parentElement.style.display = 'none';
         renderDetail(detail);
-      } catch (err) {
-        loadingDiv.style.display = 'none';
-        errorDiv.style.display = '';
-        errorDiv.textContent = 'Error loading dataset: ' + err.message;
-      }
-    }
+      }).catch(err => {
+        progressBar.classList.add('bg-danger');
+        progressBar.style.width = '100%';
+        progressBar.textContent = `Failed to load data: ${err.message || 'unknown error'}`;
+      });
 
-    main();
+    })();
 
     function showSpinner() {
       document.getElementById("loadingSpinner").style.display = "inline";
