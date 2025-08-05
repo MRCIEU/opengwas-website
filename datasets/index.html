@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GWAS Dataset Table</title>
+  <title>All datasets - OpenGWAS</title>
   <link rel="shortcut icon" type="image/png" sizes="32x32" href="../images/logo/opengwas/favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.2/b-3.2.4/b-html5-3.2.4/datatables.min.css" rel="stylesheet" integrity="sha384-da1RzZN/J6BPsPORWFErAk8mFOaYQkGbWJeiVnME5UhVhp5v/SwUha/qcgYTjAPJ" crossorigin="anonymous">
   <style>
     .wrap-text {
@@ -18,8 +19,36 @@
   <div id="header"></div>
 
   <main class="container" style="max-width: 1000px">
-    <div id="progress"></div>
-    <h1>GWAS Datasets</h1>
+    <h3>Datasets</h3>
+
+    <p>
+      <span id="notes"></span>
+      <a class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBatches" aria-expanded="false" aria-controls="collapseBatches">
+        Show or hide batches
+      </a>
+    </p>
+
+    <div class="progress" role="progressbar" aria-label="Loading in progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      <div id="progress" class="progress-bar progress-bar-animated" id="progress" style="width: 0%">0%</div>
+    </div>
+    <div class="collapse" id="collapseBatches">
+      <div class="card card-body" style="height: 400px; overflow-y: auto;">
+        <table class="display table table-striped table-sm" style="width: 100%;">
+          <thead>
+            <tr>
+              <th width="15%">ID starting with</th>
+              <th width="10%">Datasets</th>
+              <th>Description</th>
+              <th width="10%">Link</th>
+            </tr>
+          </thead>
+          <tbody id="batchesTableBody">
+            <!-- Batches will be populated here -->
+          </tbody>
+        </table>  
+      </div>
+    </div>
+
     <table id="gwasTable" class="display table table-striped table-sm" style="width: 100%;">
       <thead>
         <tr>
@@ -37,6 +66,7 @@
 
   <div id="footer"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.2/b-3.2.4/b-html5-3.2.4/datatables.min.js" integrity="sha384-cTeXLnfaSbI/49ovkPyA4Ux8hZn9H8GdEQme7QVQcJl1b6vwvbEJ0szdHcs5W0He" crossorigin="anonymous"></script>
   <script type="module">
     import { includeHTML } from '../js/include.js';
@@ -68,7 +98,7 @@
       }).sort(() => Math.random() - 0.5);
     }
 
-    function populateTable(tableData) {
+    function populateGwasTable(tableData) {
       $('#gwasTable').DataTable({
         data: tableData,
         columnDefs: [
@@ -76,6 +106,9 @@
             targets: 0,
             width: '130px',
             className: 'wrap-text',
+            render : (data, type, row) => {
+              return `<a href="/datasets/dataset.html?id=${data}" target="_blank">${data}</a>`;
+            }
           },
           {
             targets: 1,
@@ -118,18 +151,51 @@
       });
     }
 
-    const progressDiv = document.getElementById('progress');
+    function populateBatchesTable(batches) {
+      const tbody = document.getElementById('batchesTableBody');
+      tbody.innerHTML = '';
 
-    loadData(progress => {
-      console.log(`Download progress: ${progress}%`);
-      progressDiv.textContent = `Loading: ${progress}%`;
-    }).then(jsonData => {
-      const tableData = extractTableData(jsonData['datasets_compressed']);
-      populateTable(tableData);
+      batches.forEach(batch => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+          <td>${batch.id}</td>
+          <td>${batch.count.toLocaleString()}</td>
+          <td>${batch.description}</td>
+          <td><a href="${batch.link}" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+
+    const progressBar = document.getElementById('progress');
+    const notes = document.getElementById('notes');
+
+    loadData('gwasinfo', progress => {
+      progressBar.style.width = `${progress}%`;
+      progressBar.setAttribute('aria-valuenow', progress);
+      progressBar.textContent = `${progress}%`;
+    }).then(gwasinfo => {
+      const tableData = extractTableData(gwasinfo['datasets_compressed']);
+      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${gwasinfo['metadata']['updated_at']}. Displayed in random order.`
+      progressBar.parentElement.style.display = 'none';
+      populateGwasTable(tableData);
     }).catch(err => {
-      console.error('Failed to load data:', err);
-      progressDiv.textContent = 'Failed to load data';
+      progressBar.classList.add('bg-danger');
+      progressBar.style.width = '100%';
+      progressBar.textContent = 'Failed to load data';
     });
+
+    loadData('batches').then(batches => {
+      populateBatchesTable(batches);
+    }).catch(err => {
+      document.getElementById('batchesTableBody').innerHTML = `
+        <tr><td colspan="4" class="text-danger">Failed to load batches data.</td></tr>
+      `;
+    });
+
   </script>
 
 </body>

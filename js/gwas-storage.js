@@ -2,9 +2,17 @@
 
 const dbName = 'GwasDB';
 const storeName = 'GwasStore';
-const cacheKey = 'cachedGwasJson';
 
-const jsonUrl = 'https://ieup4.objectstorage.uk-london-1.oci.customer-oci.com/p/41JaF94OZtoD84dQxC6oSzpqhO6q3c2fYM2iJ9Yx9bM-6yXqy_NvGYaeV15D7AvA/n/ieup4/b/igd/o/gwasinfo.json';
+const keys_and_urls = {
+  'gwasinfo': {
+    'key': 'gwasinfo.json',
+    'url': 'https://ieup4.objectstorage.uk-london-1.oci.customer-oci.com/p/sigwHf-vsYcWCJ5YUAvRCxYKPzHlc4LWNljUJmyzO7beGE9n2ctwzLeCidDDG-Uh/n/ieup4/b/igd/o/gwasinfo.json'
+  },
+  'batches': {
+    'key': 'gwasinfo_batches.json',
+    'url': 'https://ieup4.objectstorage.uk-london-1.oci.customer-oci.com/p/sigwHf-vsYcWCJ5YUAvRCxYKPzHlc4LWNljUJmyzO7beGE9n2ctwzLeCidDDG-Uh/n/ieup4/b/igd/o/gwasinfo_batches.json'
+  }
+}
 
 // Open or create the IndexedDB database
 export function openDB() {
@@ -88,23 +96,19 @@ async function fetchWithProgress(url, onProgress, cachedEtag = null) {
  * @param {function(number):void} onProgress - Callback receiving download progress as a percentage (0-100).
  * @returns {Promise<object>} - Resolves with the loaded JSON data.
  */
-export async function loadData(onProgress) {
+export async function loadData(target, onProgress = null) {
   const db = await openDB();
-  const cached = await getFromDB(db, cacheKey);
+  const cached = await getFromDB(db, keys_and_urls[target].key);
   const cachedEtag = cached?.etag || null;
 
-  const fetched = await fetchWithProgress(jsonUrl, onProgress, cachedEtag);
+  const fetched = await fetchWithProgress(keys_and_urls[target].url, onProgress, cachedEtag);
 
-  let jsonData;
-  if (fetched === null) {
-    // Cache is valid, use cached data
-    jsonData = cached.data;
-  } else {
-    jsonData = fetched.data;
-    await putToDB(db, cacheKey, {
-      data: jsonData,
-      etag: fetched.etag,
-    });
-  }
-  return jsonData;
+  if (fetched === null) return cached.data;
+
+  await putToDB(db, keys_and_urls[target].key, {
+    data: fetched.data,
+    etag: fetched.etag,
+  });
+  
+  return fetched.data;
 }
