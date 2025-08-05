@@ -1,4 +1,4 @@
-export async function includeHTML(selector, url) {
+export async function includeHTML(selector, url, callback = () => {}) {
   const element = document.querySelector(selector);
   if (!element) return;
   try {
@@ -6,6 +6,7 @@ export async function includeHTML(selector, url) {
     if (!res.ok) throw new Error(`Failed to load ${url}`);
     const html = await res.text();
     element.innerHTML = html;
+    callback();
   } catch (err) {
     console.error(err);
   }

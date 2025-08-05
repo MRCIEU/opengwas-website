@@ -110,7 +110,7 @@
         <hr>
         <h5>Relevant datasets</h5>
         <div class="list-group">
-          (none)
+          (service unavailable)
           <!-- <a href="#" class="list-group-item list-group-item-action">A second link item</a> -->
         </div>
         <div class="fw-light lh-sm mt-2">recommended by <a href="https://api.epigraphdb.org/#/OpenGWAS/get_gwas_recommender_opengwas_search_id_get" target="_blank">EpiGraphDB</a></small><br>
@@ -126,10 +126,12 @@
     import { loadData } from '../js/gwas-storage.js';
 
     includeHTML('#header', '/common/header.html');
-    includeHTML('#footer', '/common/footer.html');
+    includeHTML('#footer', '/common/footer.html', () => {
+      document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
 
     let gwasId = null;
-    const filesTrialUrl = "http://localhost:8019/api/gwasinfo/files/trial";
+    const gwasinfoFilesTrialUrl = "http://localhost:8019/api/gwasinfo/files/trial";
 
     function getDatasetIdFromUrl() {
       const params = new URLSearchParams(window.location.search);
@@ -278,7 +280,7 @@
 
     document.getElementById("getReportBtn").addEventListener("click", async () => {
       try {
-        const result = await postData(filesTrialUrl, { id: gwasId, type: "report" });
+        const result = await postData(gwasinfoFilesTrialUrl, { id: gwasId, type: "report" });
         if (result.length === 1) {
           window.open(result[0], "_blank");
         } else {
@@ -291,7 +293,7 @@
 
     document.getElementById("getVcfBtn").addEventListener("click", async () => {
       try {
-        const result = await postData(filesTrialUrl, { id: gwasId, type: "vcf" });
+        const result = await postData(gwasinfoFilesTrialUrl, { id: gwasId, type: "vcf" });
         if (result.length === 0) {
           alert("VCF is unavailable for this dataset.");
           return;

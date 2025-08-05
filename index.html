@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OpenGWAS</title>
+  <link rel="shortcut icon" type="image/png" sizes="32x32" href="images/logo/opengwas/favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body>
+  <div id="header"></div>
+
+  <main class="container" style="max-width: 1000px">
+
+    <header class="pt-5 pb-2">
+        <div class="container-xxl bd-gutter pt-md-1">
+            <div class="row">
+                <h1 class="bd-title mt-0">OpenGWAS</h3>
+                <blockquote class="blockquote mb-2">
+                    <i>Empowering decision makers to maximise improvements to public health</i>
+                </blockquote>
+                <p>The aim of <b>OpenGWAS</b> is to bring together disjointed sources of GWAS summary data alongside the suite of analytical tools that make value from those data. Building this coherence has drastically increased the scope of phenome-wide causal inference, alongside its reliability.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="row fw-normal lead p-3">
+
+        <div class="col d-flex">
+            <i class="bi bi-database me-3" style="font-size: 3rem; color: cornflowerblue;"></i>
+            <div>
+                <h4>Datasets</h4>
+                <p class="fs- mb-1">A database of more than 50,000 <abbr title="Genome wide association studies">GWAS</abbr> summary datasets, for querying or download.</p>
+                <a href="/datasets" class="fs-6 icon-link">Explore datasets <i class="bi bi-chevron-right"></i></a>
+            </div>
+        </div>
+        <div class="col d-flex">
+            <i class="bi bi-code-slash me-3" style="font-size: 3rem; color: cornflowerblue;"></i>
+            <div>
+                <h4>API</h4>
+                <p class="fs-5 mb-1">The fast, programmatic way to query batches, associations, phewas, variants are more.</p>
+                <a href="https://api.opengwas.io" class="fs-6 icon-link">API account & docs<i class="bi bi-chevron-right"></i></a>
+
+            </div>
+        </div>
+        <div class="col d-flex">
+            <i class="bi bi-boxes me-3" style="font-size: 3rem; color: cornflowerblue;"></i>
+            <div>
+                <h4>Ecosystem</h4>
+                <p class="fs-5 mb-1">Use TwoSampleMR for <abbr title="Mendelian Randomization">MR</abbr> and gwasglue2 for fine mapping, colocalisation, etc.</p>
+                <a href="https://mrcieu.r-universe.dev/builds" class="fs-6 icon-link" target="_blank">MRC IEU R-universe<i class="bi bi-chevron-right"></i></a>
+            </div>
+        </div>
+
+        <div class="alert alert-light fs-6 mt-4" role="alert">
+          Coming in later 2025:
+          <ul class="mb-0">
+            <li>All datasets lifted over to GRCh38</li>
+            <li>EBI datasets updated</li>
+            <li>MVP (GIA) datasets imported</li>
+          </ul>
+        </div>
+    </div>
+
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module">
+    import { includeHTML } from '../js/include.js';
+
+    includeHTML('#header', '/common/header.html');
+    includeHTML('#footer', '/common/footer.html', () => {
+      document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
+
+
+  </script>
+</body>
+</html>

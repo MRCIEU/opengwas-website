@@ -42,9 +42,7 @@
               <th width="10%">Link</th>
             </tr>
           </thead>
-          <tbody id="batchesTableBody">
-            <!-- Batches will be populated here -->
-          </tbody>
+          <tbody id="batchesTableBody"></tbody>
         </table>  
       </div>
     </div>
@@ -66,14 +64,16 @@
 
   <div id="footer"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js" integrity="sha512-Tc0i+vRogmX4NN7tuLbQfBxa8JkfUSAxSFVzmU31nVdHyiHElPPy2cWfFacmCJKw0VqovrzKhdd2TSTMdAxp2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.3.2/b-3.2.4/b-html5-3.2.4/datatables.min.js" integrity="sha384-cTeXLnfaSbI/49ovkPyA4Ux8hZn9H8GdEQme7QVQcJl1b6vwvbEJ0szdHcs5W0He" crossorigin="anonymous"></script>
   <script type="module">
     import { includeHTML } from '../js/include.js';
     import { loadData } from '../js/gwas-storage.js';
 
     includeHTML('#header', '/common/header.html');
-    includeHTML('#footer', '/common/footer.html');
+    includeHTML('#footer', '/common/footer.html', () => {
+      document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
 
     function extractTableData(compressedData) {
       const keys = Object.keys(compressedData);
