@@ -6,11 +6,11 @@ const storeName = 'GwasStore';
 const keys_and_urls = {
   'gwasinfo': {
     'key': 'gwasinfo.json',
-    'url': 'https://ieup4.objectstorage.uk-london-1.oci.customer-oci.com/p/sigwHf-vsYcWCJ5YUAvRCxYKPzHlc4LWNljUJmyzO7beGE9n2ctwzLeCidDDG-Uh/n/ieup4/b/igd/o/gwasinfo.json'
+    'url': '../data/gwasinfo.json'
   },
   'batches': {
     'key': 'gwasinfo_batches.json',
-    'url': 'https://ieup4.objectstorage.uk-london-1.oci.customer-oci.com/p/sigwHf-vsYcWCJ5YUAvRCxYKPzHlc4LWNljUJmyzO7beGE9n2ctwzLeCidDDG-Uh/n/ieup4/b/igd/o/gwasinfo_batches.json'
+    'url': '../data/gwasinfo_batches.json'
   }
 }
 
