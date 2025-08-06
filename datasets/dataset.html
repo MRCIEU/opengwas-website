@@ -120,6 +120,13 @@
       return (new URLSearchParams(location.search)).get('id') || location.pathname.split('/').filter(Boolean).pop() || null;
     })();
 
+    function parseUnicodeString(str) {
+      return str.replace(/<U\+([0-9A-Fa-f]{4,6})>/g, function (match, group1) {
+        const codePoint = parseInt(group1, 16);
+        return String.fromCodePoint(codePoint);
+      });
+    }
+
     function decodeField(value, field, majorityCoding) {
       if (
         majorityCoding[field] &&
@@ -128,6 +135,9 @@
         value < majorityCoding[field].length
       ) {
         return majorityCoding[field][value];
+      }
+      if (field === 'author' && typeof value === 'string') {
+        return parseUnicodeString(value);
       }
       return value === null ? '(null)' : value;
     }
