@@ -70,6 +70,7 @@
   <script type="module">
     import { includeHTML } from '../js/include.js';
     import { loadData } from '../js/gwas-storage.js';
+    import { parseUnicodeString } from '../js/utils.js';
 
     includeHTML('#header', '/common/header.html');
     includeHTML('#footer', '/common/footer.html', () => {
@@ -94,7 +95,7 @@
           id,
           arr[fieldIndex.trait],
           arr[fieldIndex.year],
-          arr[fieldIndex.author],
+          parseUnicodeString(arr[fieldIndex.author]),
           arr[fieldIndex.consortium],
           arr[fieldIndex.sample_size],
         ];

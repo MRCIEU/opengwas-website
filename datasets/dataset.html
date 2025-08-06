@@ -102,6 +102,7 @@
   <script type="module">
     import { includeHTML } from '../js/include.js';
     import { loadData } from '../js/gwas-storage.js';
+    import { parseUnicodeString } from '../js/utils.js';
 
     includeHTML('#header', '/common/header.html');
     includeHTML('#footer', '/common/footer.html', () => {
@@ -119,13 +120,6 @@
     const gwasId = (() => {
       return (new URLSearchParams(location.search)).get('id') || location.pathname.split('/').filter(Boolean).pop() || null;
     })();
-
-    function parseUnicodeString(str) {
-      return str.replace(/<U\+([0-9A-Fa-f]{4,6})>/g, function (match, group1) {
-        const codePoint = parseInt(group1, 16);
-        return String.fromCodePoint(codePoint);
-      });
-    }
 
     function decodeField(value, field, majorityCoding) {
       if (
