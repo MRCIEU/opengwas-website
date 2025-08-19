@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OpenGWAS</title>
+  <link rel="shortcut icon" type="image/png" sizes="32x32" href="images/logo/opengwas/favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.css" />
+
+</head>
+<body>
+  <div id="header"></div>
+
+  <main class="container" style="max-width: 1000px">
+
+    <div class="row">
+      <div class="col-md-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top">
+            <h2>About</h2>
+            <hr>
+        </nav>
+      </div>
+      <div class="col-md-9">
+          <section id="infrastructure">
+            <h3 class="visually-hidden">GWAS summary data ecosystem</h3>
+                <a href="/images/gwas_ecosystem.bb869525db1a.png"><img src="/images/gwas_ecosystem.bb869525db1a.png" style="width: 100%;" alt="Diagram"></a>
+          </section>
+          <hr>
+          <section id="Background">
+              <h3>Background</h3>
+              <p>Developed at the <a href="https://bris.ac.uk/ieu" target="_blank" rel="external">MRC Integrative Epidemiology Unit</a> (IEU) at the University of Bristol, this resource is a manually curated collection of complete <abbr title="Genome-wide association studies">GWAS</abbr> summary datasets made available as open source files for download, or by querying a database of the complete data.</p>
+              <p>This project began as the underlying database for the <a href="http://www.mrbase.org/" target="_blank" rel="external">MR-Base</a> (decommissioned) and <a href="http://ldsc.broadinstitute.org/ldhub/" target="_blank" rel="external">LD Hub</a> projects. These data now serve as an input source to a wider number of analytical tools that implement methods such as Mendelian randomization, fine mapping, colocalisation, GWAS visualisation etc. Please see the <a href="https://api.opengwas.io" target="_blank">API</a> page for a list of R and Python packages that will connect to the data.</p>
+              <p>The database comprises mainly publicly available datasets, but also includes a number of private datesets whose access is controlled through OAuth2.0 authentication. Please contact us if you have datasets that you would like to add, whether public or private.</p>
+          </section>
+          <hr>
+          <section id="vcf">
+              <h3>The GWAS <abbr title="Variant call format">VCF</abbr> format</h3>
+              <p>We have made all the public data available for download. We are using the GWAS VCF format to store the GWAS summary data to ensure alignment with the hg19 reference sequence, and to enable very fast querying. More information is available here: <a href="https://github.com/MRCIEU/gwas-vcf-specification" rel="external">https://github.com/MRCIEU/gwas-vcf-specification</a> and on <a href="https://doi.org/10.1101/2020.05.29.115824">biorxiv</a>.</p>
+          </section>
+          <hr>
+          <section id="contact">
+              <h3>Citing this resource</h3>
+              <ul>
+                  <li><p>Please ensure that the original data are cited whenever it is used. Pubmed IDs are made available through the meta data.</p></li>
+                  <li>
+                      <p>If you access the data through the OpenGWAS database API:<br>
+                          <strong>The MRC IEU OpenGWAS data infrastructure.</strong> Ben Elsworth, Matthew Lyon, Tessa Alexander, Yi Liu, Peter Matthews, Jon Hallett, Phil Bates, Tom Palmer, Valeriia Haberland, George Davey Smith, Jie Zheng, Philip Haycock, Tom R Gaunt, Gibran Hemani. bioRxiv 2020.08.10.244293v1. doi: <a href="https://doi.org/10.1101/2020.08.10.244293" target="_blank" rel="external">10.1101/2020.08.10.244293</a><br />
+                          <strong>The MR-Base platform supports systematic causal inference across the human phenome.</strong> Hemani G, Zheng J, Elsworth B, Wade KH, Baird D, Haberland V, Laurin C, Burgess S, Bowden J, Langdon R, Tan VY, Yarmolinsky J, Shihab HA, Timpson NJ, Evans DM, Relton C, Martin RM, Davey Smith G, Gaunt TR, Haycock PC, The MR-Base Collaboration. eLife 2018;7:e34408. doi: <a href="https://doi.org/10.7554/eLife.34408" target="_blank" rel="external">10.7554/eLife.34408</a>
+                      </p>
+                  </li>
+                  <li><p>If using GWAS-VCF files:<br>
+                      <strong>The variant call format provides efficient and robust storage of GWAS summary statistics.</strong> Matthew Lyon, Shea J Andrews, Ben Elsworth, Tom R Gaunt, Gibran Hemani, Edoardo Marcora. bioRxiv 2020.05.29.115824; doi: <a href="https://doi.org/10.1101/2020.05.29.115824" target="_blank" rel="external">10.1101/2020.05.29.115824</a></p></li>
+              </ul>
+
+          </section>
+          <hr>
+          <section id="bulkdownloads">
+              <h3>Bulk downloads</h3>
+
+              <p>You can download VCF files and QC reports directly from our servers. There is not currently a single file to download everything - it would be extremely large (many terrabytes) and constantly out of date as we continually add new studies. To manually or programmatically check which files are available for datasets and get the download links, use this website, ieugwasr, ieugwaspy or build your own wrapper around the API - details can be found on the dataset details page of any dataset e.g. <a href="https://opengwas.io/datasets/ieu-a-2" target="_blank">ieu-a-2</a>.</p>
+
+              <p>A list of all datasets, along with their meta-data and IDs, is also available through the API, R or Python packages, so it should be straightforward to create a subset of datasets to be downloaded through a loop. Note that there will be a relatively higher <a href="https://api.opengwas.io/api/#allowance" target="_blank">cost</a> (deducted from your periodic allowance, usually given free of charge) to do this, as we pay money to the cloud service provider for the storage, requests handling and outbound bandwidth.</p>
+              <p>To learn more about how to use GWAS-VCF files, including how to use R and Python to efficiently manipulate and query, or convert to text files, see <a href="https://github.com/MRCIEU/gwas2vcf/blob/master/README.md#convert" target="_blank" rel="external">gwas2vcf</a>.</p>
+          </section>
+          <hr>
+          <section id="credits">
+              <h3>Credits</h3>
+              <p>Many people have contributed to the IEU GWAS database project. Main parties are:</p>
+              <ul>
+                  <li>Ben Elsworth</li>
+                  <li>Chris Zheng</li>
+                  <li>Gibran Hemani</li>
+                  <li>Jon Hallett</li>
+                  <li>Matt Lyon</li>
+                  <li>Peter Matthews</li>
+                  <li>Philip Haycock</li>
+                  <li>Tessa Alexander</li>
+                  <li>Tom Gaunt</li>
+                  <li>Valeriia Haberland</li>
+                  <li>Yi Liu</li>
+                  <li>Weili Qiu</li>
+              </ul>
+              <p>Sincere thanks also go to the many GWAS consortia who have made the GWAS data that they generated publicly available, and many members of the IEU who have contributed to curating these data.</p>
+          </section>
+          <hr>
+          <section>
+              <h3>Dependencies</h3>
+              <p>The IEU GWAS database project is built upon many important open source software projects, including but not limited to:</p>
+              <ul>
+                  <li><a href="https://www.docker.com/" target="_blank" rel="external">Docker</a></li>
+                  <li><a href="https://www.fullstackpython.com/flask.html" target="_blank" rel="external">Flask</a></li>
+                  <li><a href="https://www.djangoproject.com/" target="_blank" rel="external">Django</a></li>
+                  <li><a href="https://www.elastic.co/" target="_blank" rel="external">ElasticSearch</a></li>
+                  <li><a href="https://neo4j.com/" target="_blank" rel="external">Neo4j</a></li>
+                  <li><a href="https://snakemake.readthedocs.io/en/stable/" target="_blank" rel="external">Snakemake</a></li>
+                  <li><a href="https://cromwell.readthedocs.io/en/stable/" target="_blank" rel="external">Cromwell</a></li>
+                  <li><a href="https://www.python.org/" target="_blank" rel="external">Python</a></li>
+                  <li><a href="https://cran.r-project.org/" target="_blank" rel="external">R</a></li>
+              </ul>
+          </section>
+          <hr>
+          <section>
+              <h3>Contributing consortia</h3>
+              <p>Many thanks to the <a href="https://www.ebi.ac.uk/gwas/">NHGRI-EBI GWAS catalog</a> and the studies contributing data to OpenGWAS</p>
+              <ul>
+                  <li><a href="https://www.mcgill.ca/genepi/adipogen-consortium" target="_blank">ADIPOGen</a></li>
+                  <li><a href="https://www.ibdgenetics.org/" target="_blank">IIBDGC</a></li>
+                  <li><a href="https://portals.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium" target="_blank">GIANT</a></li>
+                  <li><a href="https://www.thessgac.org/" target="_blank">SSGAC</a></li>
+                  <li><a href="https://www.reprogen.org/" target="_blank">ReproGen</a></li>
+                  <li><a href="https://mesamalaria.org/mesa-track/genome-wide-association-studies-map-genetic-variation-underlying-mosquito-susceptibility" target="_blank">MESA</a></li>
+                  <li><a href="https://haemgen.haem.cam.ac.uk/" target="_blank">HaemGen</a></li>
+                  <li><a href="https://datashare.is.ed.ac.uk/handle/10283/2787" target="_blank">CORNET</a></li>
+                  <li>GliomaScan</li>
+                  <li><a href="https://repository.niddk.nih.gov/studies/edic/" target="_blank">DCCT / EDIC</a></li>
+                  <li><a href="http://jenger.riken.jp/en/" target="_blank">BioBank Japan</a></li>
+                  <li><a href="https://www.well.ox.ac.uk/wtccc2/ms/" target="_blank">IMSGC</a></li>
+                  <li>IAC</li>
+                  <li><a href="http://copsac.com/home/research-clusters/eagle-consortium/" target="_blank">EAGLE</a></li>
+                  <li><a href="https://egg-consortium.org/" target="_blank">EGG</a></li>
+                  <li><a href="http://enigma.ini.usc.edu/" target="_blank">ENIGMA</a></li>
+                  <li>GIS</li>
+                  <li><a href="http://metabolomics.helmholtz-muenchen.de/gugc/" target="_blank">GUGC</a></li>
+                  <li><a href="https://walker05.u.hpc.mssm.edu/" target="_blank">HRgene</a></li>
+                  <li><a href="https://www.projectmine.com/" target="_blank">MinE</a></li>
+                  <li><a href="https://www.ukbiobank.ac.uk/" target="_blank">UK Biobank</a></li>
+                  <li><a href="https://ckdgen.imbi.uni-freiburg.de/" target="_blank">CKDGen</a></li>
+                  <li><a href="https://strokegenetics.org/" target="_blank">ISGC</a></li>
+                  <li><a href="https://www.ipscsg.org/" target="_blank">IPSCSG</a></li>
+                  <li><a href="http://ocac.ccge.medschl.cam.ac.uk/" target="_blank">OCAC</a></li>
+                  <li><a href="http://bcac.ccge.medschl.cam.ac.uk/" target="_blank">BCAC</a></li>
+                  <li><a href="https://www.med.unc.edu/pgc/download-results/gpc/" target="_blank">GPC</a></li>
+                  <li><a href="http://www.chargeconsortium.com/" target="_blank">CHARGE</a></li>
+                  <li>arcOGEN</li>
+                  <li><a href="http://practical.icr.ac.uk/" target="_blank">PRACTICAL</a></li>
+                  <li><a href="https://www.med.unc.edu/pgc/" target="_blank">PGC</a></li>
+                  <li>iPSYCH-PGC</li>
+                  <li>PGC-ED</li>
+                  <li><a href="https://enroll-hd.org/" target="_blank">GeM-HD</a></li>
+                  <li>Sclerostin genetics consortium</li>
+                  <li><a href="https://www.ukbiobank.ac.uk/" target="_blank">UK Biobank+INTERVAL+UK BiLEVE</a></li>
+                  <li><a href="http://jenger.riken.jp/en/" target="_blank">Biobank Japan Project</a></li>
+                  <li><a href="https://diagram-consortium.org/" target="_blank">DIAGRAM</a></li>
+                  <li><a href="https://diagram-consortium.org/" target="_blank">DIAGRAMplusMetabochip</a></li>
+                  <li><a href="http://web.pasteur-lille.fr/en/recherche/u744/igap/igap_download.php" target="_blank">IGAP</a></li>
+                  <li><a href="http://csg.sph.umich.edu/willer/public/lipids2013/" target="_blank">GLGC</a></li>
+                  <li>AMDGene</li>
+                  <li>ALSgene</li>
+                  <li><a href="https://www.cnrgh.fr/gabriel/index.html" target="_blank">GABRIEL</a></li>
+                  <li>GCAN</li>
+                  <li><a href="http://www.gefos.org/" target="_blank">GEFOS</a></li>
+                  <li><a href="http://www.cardiogramplusc4d.org/" target="_blank">C4D</a></li>
+                  <li><a href="http://www.cardiogramplusc4d.org/" target="_blank">CARDIoGRAMplusC4D</a></li>
+                  <li><a href="https://www.magicinvestigators.org/" target="_blank">MAGIC</a></li>
+                  <li><a href="http://www.cardiogramplusc4d.org/" target="_blank">CARDIoGRAM</a></li>
+                  <li><a href="https://dceg.cancer.gov/research/cancer-types/pancreas/panscan" target="_blank">PanScan</a></li>
+                  <li>ICBP</li>
+                  <li>TAG</li>
+                  <li><a href="https://ilcco.iarc.fr/">ILCCO</a></li>
+                  <li>SpiroMetaplusCHARGE</li>
+                  <li>TRICL</li>
+                  <li>...</li>
+              </ul>
+          </section>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.min.js" integrity="sha512-zKeerWHHuP3ar7kX2WKBSENzb+GJytFSBL6HrR2nPSR1kOX1qjm+oHooQtbDpDBSITgyl7QXZApvDfDWvKjkUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script>
+
+  <script type="module">
+    import { includeHTML } from '../js/include.js';
+
+    includeHTML('#header', '/common/header.html');
+    includeHTML('#footer', '/common/footer.html', () => {
+      document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
+
+  </script>
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "sq9z63te1u");
+  </script>
+
+</body>
+</html>
