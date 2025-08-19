@@ -12,22 +12,25 @@
       white-space: normal !important;
       word-break: break-word;
     }
+    div.dt-container div.dt-search input {
+      width: 200px;
+    }
   </style>
 </head>
 
 <body>
   <div id="header"></div>
 
-  <main class="container mt-3" style="max-width: 1000px">
+  <main class="container mt-3" style="max-width: 1200px">
     <h3>Datasets</h3>
 
     <div class="progress" role="progressbar" aria-label="Loading in progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
       <div id="progress" class="progress-bar progress-bar-animated" id="progress" style="width: 0%">0%</div>
     </div>
 
-    <div class="d-flex align-items-center">
+    <div class="row">
       <span id="notes"></span>
-      <a class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBatches" aria-expanded="false" aria-controls="collapseBatches">
+      <a class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBatches" aria-expanded="false" aria-controls="collapseBatches">
         Show or hide batches
       </a>
     </div>
@@ -53,10 +56,14 @@
         <tr>
           <th>OpenGWAS ID</th>
           <th>Trait</th>
-          <th>Year</th>
+          <th>Category</th>
+          <th>Subcategory</th>
           <th>Author</th>
-          <th>Consortium</th>
+          <th>Year</th>
+          <th>Population</th>
+          <th>Sex</th>
           <th>Sample Size</th>
+          <th>Consortium</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -79,25 +86,33 @@
 
     const isProduction = ['opengwas.io'].includes(window.location.hostname);
 
-    function extractTableData(compressedData) {
-      const keys = Object.keys(compressedData);
-      const fields = ['trait', 'year', 'author', 'consortium', 'sample_size'];
+    function extractTableData(gwasinfo) {
+      const keys = Object.keys(gwasinfo['datasets_compressed']);
+      const fields = ['trait', 'year', 'author', 'population', 'sex', 'sample_size', 'consortium'];
       const fieldIndex = {
         trait: 0,
         year: 7,
         author: 6,
-        consortium: 11,
+        category: 2,
+        subcategory: 3,
+        population: 4,
+        sex: 5,
         sample_size: 10,
+        consortium: 11,
       };
       return keys.map(id => {
-        const arr = compressedData[id][0];
+        const arr = gwasinfo['datasets_compressed'][id][0];
         return [
           id,
           arr[fieldIndex.trait],
-          arr[fieldIndex.year],
+          gwasinfo['majority_fields_and_coding']['category'][arr[fieldIndex.category]],
+          gwasinfo['majority_fields_and_coding']['subcategory'][arr[fieldIndex.subcategory]],
           parseUnicodeString(arr[fieldIndex.author]),
-          arr[fieldIndex.consortium],
+          arr[fieldIndex.year],
+          gwasinfo['majority_fields_and_coding']['population'][arr[fieldIndex.population]],
+          gwasinfo['majority_fields_and_coding']['sex'][arr[fieldIndex.sex]],
           arr[fieldIndex.sample_size],
+          arr[fieldIndex.consortium],
         ];
       }).sort(() => Math.random() - 0.5);
     }
@@ -108,6 +123,7 @@
         columnDefs: [
           {
             targets: 0,
+            filterType: 'text',
             width: '130px',
             className: 'wrap-text',
             render : (data, type, row) => {
@@ -117,17 +133,52 @@
           },
           {
             targets: 1,
+            filterType: 'text',
             width: '300px',
             className: 'wrap-text',
           },
           {
+            targets: 2,
+            filterType: 'select',
+            width: '60px',
+          },
+          {
             targets: 3,
+            filterType: 'select',
+            width: '60px',
+          },
+          {
+            targets: 4,
+            filterType: 'text',
             width: '150px',
             className: 'wrap-text',
           },
           {
-            targets: 4,
+            targets: 5,
+            filterType: 'none',
+            width: '60px',
+          },
+          {
+            targets: 6,
+            filterType: 'select',
             width: '110px',
+            className: 'wrap-text',
+          },
+          {
+            targets: 7,
+            filterType: 'select',
+            width: '120px',
+            className: 'wrap-text',
+          },
+          {
+            targets: 8,
+            width: '120px',
+            className: 'wrap-text',
+          },
+          {
+            targets: 9,
+            filterType: 'text',
+            width: '120px',
             className: 'wrap-text',
           },
         ],
@@ -135,12 +186,17 @@
         scrollX: true,
         order: [],
         layout: {
-            topStart: 'search',
+            topStart: {
+              search: {
+                placeholder: 'against all fields below'
+              }
+            },
             topEnd: {
               buttons: [{
                 extend: 'csv',
-                text: 'Export current results CSV',
+                text: 'Export current results to CSV',
                 className: 'btn btn-sm btn-light',
+                filename: 'opengwas.io_' + new Date().toISOString().slice(0,19).replace(/:/g, '-'),
               }]
             },
             bottomStart: 'info',
@@ -152,6 +208,81 @@
           infoFiltered: "(filtered from _MAX_ total datasets)",
           infoEmpty: "Showing 0 to 0 of 0 datasets",
           zeroRecords: "No matching datasets found",
+        },
+        initComplete: function () {
+          this.api()
+            .columns()
+            .every(function () {
+              let column = this;
+              let title = column.header().textContent;
+
+              let filterType = column.settings()[0].aoColumns[column.index()].filterType || 'none';
+              switch (filterType) {
+                case 'text':
+                  // Create input element
+                  let input = document.createElement('input');
+                  input.type = 'search';
+                  input.style.width = '100%';
+                  input.placeholder = title;
+                  input.className = 'form-control form-control-sm';
+                  column.header().appendChild(input);
+
+                  // Stop propagation of click events on the input, otherwise it will trigger the column sorting
+                  input.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                  });
+
+                  // Event listener for user input
+                  input.addEventListener('keyup', () => {
+                      if (column.search() !== this.value) {
+                          column.search(input.value).draw();
+                      }
+                  });
+                  input.addEventListener('input', () => {
+                      if (column.search() !== this.value) {
+                          column.search(input.value).draw();
+                      }
+                  });
+                  break;
+
+                case 'select':
+                  // Create select element
+                  let select = document.createElement('select');
+                  select.style.width = '100%';
+                  select.className = 'form-control form-control-sm';
+                  column.header().appendChild(select);
+                  let option = document.createElement('option');
+                  option.value = '';
+                  option.textContent = '(all)';
+                  select.appendChild(option);
+
+                  // Populate select options
+                  column.data().unique().sort().each(function (d) {
+                    var opt = document.createElement('option');
+                    opt.value = d;
+                    opt.text = d;
+                    select.appendChild(opt);
+                  });
+
+                  // Stop propagation of click events on the input, otherwise it will trigger the column sorting
+                  select.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                  });
+                  
+                  // Event listener for select change
+                  select.addEventListener('change', () => {
+                    column.search(select.value ? '^' + select.value + '$' : '', true, false).draw();
+                  });
+                  break;
+                  
+                default:
+                  let placeholder = document.createElement('input');
+                  placeholder.disabled = true;
+                  placeholder.style.width = '100%';
+                  placeholder.style.visibility = 'hidden';
+                  column.header().appendChild(placeholder);
+              }
+            });
         },
       });
     }
@@ -191,8 +322,8 @@
       progressBar.setAttribute('aria-valuenow', progress);
       progressBar.textContent = `${progress}%`;
     }).then(gwasinfo => {
-      const tableData = extractTableData(gwasinfo['datasets_compressed']);
-      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${gwasinfo['metadata']['updated_at']}. Displayed in random order.`
+      const tableData = extractTableData(gwasinfo);
+      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${gwasinfo['metadata']['updated_at']}. Displayed in random order. The table is horizontally scrollable - 'Consortium' is the last column.`
       progressBar.parentElement.style.display = 'none';
       populateGwasTable(tableData);
     }).catch(err => {
