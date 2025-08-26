@@ -323,7 +323,7 @@
       progressBar.textContent = `${progress}%`;
     }).then(gwasinfo => {
       const tableData = extractTableData(gwasinfo);
-      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${gwasinfo['metadata']['updated_at']}. Displayed in random order. The table is horizontally scrollable - 'Consortium' is the last column.`
+      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${ new Date(gwasinfo['metadata']['updated_at'] * 1000).toUTCString()}. Displayed in random order. The table is horizontally scrollable - 'Consortium' is the last column.`
       progressBar.parentElement.style.display = 'none';
       populateGwasTable(tableData);
     }).catch(err => {
