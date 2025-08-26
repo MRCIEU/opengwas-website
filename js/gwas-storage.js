@@ -6,11 +6,11 @@ const storeName = 'GwasStore';
 const keys_and_urls = {
   'gwasinfo': {
     'key': 'gwasinfo.json',
-    'url': '../data/gwasinfo.json'
+    'url': '../data/gwasinfo/gwasinfo.json'
   },
   'batches': {
     'key': 'gwasinfo_batches.json',
-    'url': '../data/gwasinfo_batches.json'
+    'url': '../data/gwasinfo/gwasinfo_batches.json'
   }
 }
 
