@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OpenGWAS</title>
+  <link rel="shortcut icon" type="image/png" sizes="32x32" href="images/logo/opengwas/favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.css" />
+  <style>
+    .chart {
+      width: 100%;
+      height: 300px; /* important: must set height */
+      /* margin-bottom: 30px; */
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <main class="container" style="max-width: 1000px">
+    <div class="row">
+      <div class="col-md-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top">
+          <h2>Statistics</h2>
+          <hr>
+        </nav>
+      </div>
+      <div class="col-md-9">
+        <section>
+          <h3 class="mt-4">Current Metrics</h3>
+          <p><i>Coming soon</i></p>
+        </section>
+        <hr>
+        <section>
+          <h3 class="mt-4">System Metrics</h3>
+          <p>Displaying metrics for the past 7 × 24 hours. Each data point represents statistics collected over the one-hour period starting at the labeled time. All times are shown in UTC.<br>Unless otherwise noted, failed requests (HTTP 4xx and 5xx, e.g. 429 - when you ran out of allowance) are excluded.</p>
+          <p id="lastUpdated"></p>
+
+          <h4 class="pt-3">Throughput</h4>
+          <div id="chart1" class="chart"></div>
+          <p class="px-1">Types of records returned include but are not limited to associations, genes, gwasinfo.</p>
+
+          <h4 class="pt-3">Workload</h4>
+          <div id="chart2" class="chart"></div>
+          <p class="px-1">Unique Users: Number of Account IDs.<br>System Load: In the given hour, how many CPUs were required to handle the requests.</p>
+
+          <h4 class="pt-3">Latency</h4>
+          <div id="chart3" class="chart"></div>
+          <p class="px-1">Processing Time P90: In the given hour, 90% of the requests were completed no later than the time shown.<br>Slow Query Ratio: In the given hour, this shows the fraction of all requests that took longer than 3000 milliseconds to complete.</p>
+        </section>
+        <hr>
+        <section>
+          <h3 class="mt-4">Most Valued Datasets</h3>
+          <p><i>Coming soon</i></p>
+        </section>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.min.js" integrity="sha512-zKeerWHHuP3ar7kX2WKBSENzb+GJytFSBL6HrR2nPSR1kOX1qjm+oHooQtbDpDBSITgyl7QXZApvDfDWvKjkUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js" integrity="sha512-4/g9GAdOdTpUP2mKClpKsEzaK7FQNgMjq+No0rX8XZlfrCGtbi4r+T/p5fnacsEC3zIAmHKLJUL7sh3/yVA4OQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script>
+
+  <script type="module">
+    import { includeHTML } from '../js/include.js';
+
+    includeHTML('#header', '/common/header.html');
+    includeHTML('#footer', '/common/footer.html', () => {
+      document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
+
+    // Load data
+    fetch("data/stats/recent_week.json")
+      .then(res => res.json())
+      .then(data => {
+        const timestamps = Object.keys(data).map(t => new Date(parseInt(t) * 1000).toLocaleString());
+        const totalRequests = Object.values(data).map(d => d[0]);
+        const records = Object.values(data).map(d => d[1]);
+        const users = Object.values(data).map(d => d[2]);
+        const load = Object.values(data).map(d => d[3]);
+        const p90 = Object.values(data).map(d => d[4]);
+        const slowQueryRatio = Object.values(data).map(d => d[5]);
+
+        // Create chart1
+        const chart1 = echarts.init(document.getElementById('chart1'));
+        chart1.setOption({
+          title: { text: 'Successful Requests vs Records Returned' },
+          tooltip: { trigger: 'axis' },
+          legend: { data: ['Successful Requests', 'Records Returned'] },
+          xAxis: { type: 'category', data: timestamps },
+          yAxis: [
+            { type: 'value', name: 'Successful Requests' },
+            { type: 'value', name: 'Records Returned' }
+          ],
+          series: [
+            { name: 'Successful Requests', type: 'line', data: totalRequests, yAxisIndex: 0, showSymbol: false },
+            { name: 'Records Returned', type: 'line', data: records, yAxisIndex: 1, showSymbol: false }
+          ],
+          grid: {
+            left: '7%',
+            right: '7%'
+          }
+        });
+
+        // Create chart2
+        const chart2 = echarts.init(document.getElementById('chart2'));
+        chart2.setOption({
+          title: { text: 'Unique Users vs System Load' },
+          tooltip: { trigger: 'axis' },
+          legend: { data: ['Unique Users', 'System Load'] },
+          xAxis: { type: 'category', data: timestamps },
+          yAxis: [
+            { type: 'value', name: 'Unique Users' },
+            { type: 'value', name: 'System Load' }
+          ],
+          series: [
+            { name: 'Unique Users', type: 'line', data: users, yAxisIndex: 0, showSymbol: false },
+            { name: 'System Load', type: 'line', data: load, yAxisIndex: 1, showSymbol: false }
+          ],
+          grid: {
+            left: '7%',
+            right: '7%'
+          }
+        });
+
+        // Create chart3
+        const chart3 = echarts.init(document.getElementById('chart3'));
+        chart3.setOption({
+          title: { text: 'Processing Time P90 vs Slow Query Ratio' },
+          tooltip: { trigger: 'axis' },
+          legend: { data: ['Processing Time P90', 'Slow Query Ratio'] },
+          xAxis: { type: 'category', data: timestamps },
+          yAxis: [
+            { type: 'value', name: 'Processing Time P90 (ms)' },
+            { type: 'value', name: 'Slow Query Ratio', min: 0, max: 1 }
+          ],
+          series: [
+            { name: 'Processing Time P90', type: 'line', data: p90, yAxisIndex: 0, showSymbol: false },
+            { name: 'Slow Query Ratio', type: 'line', data: slowQueryRatio, yAxisIndex: 1, showSymbol: false }
+          ],
+          grid: {
+            left: '7%',
+            right: '7%'
+          }
+        });
+
+        // Link cursor
+        echarts.connect([chart1, chart2, chart3]);
+
+        // Add "Last updated" info
+        const maxTimestamp = Math.max(...Object.keys(data).map(t => parseInt(t)));
+        const lastUpdated = new Date((maxTimestamp + 3600) * 1000).toUTCString(); // or toLocaleString()
+        document.getElementById('lastUpdated').textContent = `Last updated at: ${lastUpdated}`;
+
+      })
+      .catch(err => {
+        console.error("Failed to load stats:", err);
+      });
+
+  </script>
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "sq9z63te1u");
+  </script>
+
+</body>
+</html>
