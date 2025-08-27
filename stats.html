@@ -73,17 +73,28 @@
               </div>
             </div>
 
-            <table id="mvd-table" class="table table-striped table-sm" style="width:100%">
-              <thead>
-                <tr>
-                  <th width="20%">OpenGWAS ID</th>
-                  <th>Trait</th>
-                  <th width="10%">Users</th>
-                  <th width="10%">Requests</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <div id="mvd-wrapper" style="position: relative;">
+              <div id="mvd-loading-overlay" style="
+                  display: none;
+                  position: absolute;
+                  top: 0; left: 0; right: 0; bottom: 0;
+                  background: rgba(255, 255, 255, 0.7);
+                  text-align: center;
+                  line-height: 200px;
+                  z-index: 10;
+              "><b>Loading...</b></div>
+              <table id="mvd-table" class="table table-striped table-sm" style="width:100%">
+                <thead>
+                  <tr>
+                    <th width="20%">OpenGWAS ID</th>
+                    <th>Trait</th>
+                    <th width="10%">Users</th>
+                    <th width="10%">Requests</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -202,6 +213,7 @@
     // Most Valued Datasets
     const progressBar = document.getElementById('progress');
     const monthSelect = document.getElementById('mvd-month-select');
+    const overlay = document.getElementById('mvd-loading-overlay');
     let gwasinfo_datasets_compressed = null;
 
     function init_month_dropdown() {
@@ -251,6 +263,8 @@
 
     function loadMVDData(month) {
       const file = month === 'all' ? 'all.json' : `${month}.json`;
+      overlay.style.display = 'block';
+
       fetch(`data/stats/mvd/${file}`)
         .then(res => res.json())
         .then(mvdData => {
@@ -262,7 +276,9 @@
             })
             .filter(Boolean);
           mvdTable.clear().rows.add(tableData).draw();
+          overlay.style.display = 'none';
         }).catch(err => {
+          overlay.style.display = 'none';
           alert(`Failed to load dataset statistics for ${month}. Reverting to 'All months.`);
           monthSelect.value = 'all';
           loadMVDData(monthSelect.value);
