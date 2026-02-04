@@ -56,14 +56,14 @@
         <tr>
           <th>OpenGWAS ID</th>
           <th>Trait</th>
-          <th>Category</th>
-          <th>Subcategory</th>
           <th>Author</th>
           <th>Year</th>
           <th>Population</th>
           <th>Sex</th>
           <th>Sample Size</th>
           <th>Consortium</th>
+          <th>Category</th>
+          <th>Subcategory</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -105,14 +105,14 @@
         return [
           id,
           arr[fieldIndex.trait],
-          gwasinfo['majority_fields_and_coding']['category'][arr[fieldIndex.category]],
-          gwasinfo['majority_fields_and_coding']['subcategory'][arr[fieldIndex.subcategory]],
           parseUnicodeString(arr[fieldIndex.author]),
           arr[fieldIndex.year],
           gwasinfo['majority_fields_and_coding']['population'][arr[fieldIndex.population]],
           gwasinfo['majority_fields_and_coding']['sex'][arr[fieldIndex.sex]],
           arr[fieldIndex.sample_size],
           arr[fieldIndex.consortium],
+          gwasinfo['majority_fields_and_coding']['category'][arr[fieldIndex.category]],
+          gwasinfo['majority_fields_and_coding']['subcategory'][arr[fieldIndex.subcategory]],
         ];
       }).sort(() => Math.random() - 0.5);
     }
@@ -139,47 +139,47 @@
           },
           {
             targets: 2,
-            filterType: 'select',
-            width: '60px',
-          },
-          {
-            targets: 3,
-            filterType: 'select',
-            width: '60px',
-          },
-          {
-            targets: 4,
             filterType: 'text',
             width: '150px',
             className: 'wrap-text',
           },
           {
-            targets: 5,
+            targets: 3,
             filterType: 'none',
             width: '60px',
           },
           {
-            targets: 6,
+            targets: 4,
             filterType: 'select',
             width: '110px',
             className: 'wrap-text',
           },
           {
-            targets: 7,
+            targets: 5,
             filterType: 'select',
             width: '120px',
             className: 'wrap-text',
           },
           {
-            targets: 8,
+            targets: 6,
             width: '120px',
             className: 'wrap-text',
           },
           {
-            targets: 9,
+            targets: 7,
             filterType: 'text',
             width: '120px',
             className: 'wrap-text',
+          },
+          {
+            targets: 8,
+            filterType: 'select',
+            width: '60px',
+          },
+          {
+            targets: 9,
+            filterType: 'select',
+            width: '60px',
           },
         ],
         pageLength: 25,
@@ -323,7 +323,7 @@
       progressBar.textContent = `${progress}%`;
     }).then(gwasinfo => {
       const tableData = extractTableData(gwasinfo);
-      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${ new Date(gwasinfo['metadata']['updated_at'] * 1000).toUTCString()}. Displayed in random order. The table is horizontally scrollable - 'Consortium' is the last column.`
+      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${ new Date(gwasinfo['metadata']['updated_at'] * 1000).toUTCString()}. Displayed in random order. <b>The table is horizontally scrollable - 'Subcategory' is the last column.</b>`;
       progressBar.parentElement.style.display = 'none';
       populateGwasTable(tableData);
     }).catch(err => {
