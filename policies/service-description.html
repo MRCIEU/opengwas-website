@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Service Description (Commercial customers only) - OpenGWAS</title>
+  <link rel="shortcut icon" type="image/png" sizes="32x32" href="images/logo/opengwas/favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css" integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.css" />
+  <style>
+    h3 {
+      scroll-margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <main class="container" style="max-width: 1000px">
+
+    <div class="row">
+        <div class="col-md-3">
+            <nav id="toc" data-toggle="toc" class="sticky-top">
+                <hr>
+            </nav>
+        </div>
+        <div class="col-md-9">
+            <section>
+              <h3>Service Description (Commercial customers only)</h3>
+                <p>OpenGWAS is a cloud-based data aggregation and delivery service (OpenGWAS or the platform) provided by the University of Bristol (UoB) that aggregates genome-wide association study datasets (Datasets) and makes these accessible through an application programming interface (API).</p>
+                <p>An OpenGWAS commercial-use license (Commercial License) provides the following:</p>
+                <ul>
+                  <li>Access to the OpenGWAS API to enable licensed users to efficiently query Datasets on the OpenGWAS data service; and</li>
+                  <li>The cloud compute resources required to retrieve and deliver requested Datasets to the licensed user.</li>
+                </ul>
+                <p>A Commercial License does <b>not</b> include a license to access and use the underlying Datasets hosted on OpenGWAS. There are two categories of Datasets hosted by OpenGWAS:</p>
+                <ul>
+                  <li>Open Access Datasets (those where the Dataset has been obtained on a 'no rights reserved' or other open access basis); and</li>
+                  <li>Restricted Access Datasets (those where use, whether for commercial purposes or otherwise, may be restricted or subject to license terms which we do not have at our disposal).</li>
+                </ul>
+                <p>Commercial users are free to use the OpenGWAS API to access Datasets marked as Open Access, subject to the terms of any associated license from the Dataset owner. However, commercial users must seek permission from original providers of any Datasets marked as Restricted Access before using the OpenGWAS API to access these. <b>UoB does not own the Datasets and does not grant any licence or make any representation regarding rights to use any Dataset. The Customer is solely responsible for determining and obtaining any necessary rights, permissions or approvals required from the owner or licensor of the relevant Dataset, for its intended use. The Supplier does not mediate or guarantee any such rights.</b></p>
+            </section>
+            <hr>
+            <section>
+                <h3>Minimum service</h3>
+                <p>OpenGWAS is a non-profit, data resource operated by an academic research group with limited staff resource. The platform is provided on an as-is basis, subject to available funding, infrastructure, and personnel, and subject to the limitations set out in the Commercial License. The Supplier shall use reasonable endeavours to make the Services available 24 hours a day, seven days a week, except for:</p>
+                <ul>
+                  <li>planned maintenance (which will be notified to customers in advance); and</li>
+                  <li>exceptional unscheduled maintenance, where this is necessary (UoB will endeavour to give at least 24 hours’ notice to customers, where this is possible given the circumstances).</li>
+                </ul>
+                <p>The minimum level of service provided by OpenGWAS is as follows:</p>
+                <ul>
+                  <li>programmatic access to GWAS summary statistics via a documented application programming interface (API), without guarantees of availability, performance, or continuity, and subject to data availability and applicable permissions and to the API Limitations set out at <a href="https://api.opengwas.io/api/" target="_blank">https://api.opengwas.io/api/</a>.</li>
+                </ul>
+                <p>No service level agreements, response time commitments, or long-term data preservation guarantees are provided by UoB in respect of the platform. Support is limited and provided at the discretion of UoB’s operating team. Users are responsible for assessing the suitability of the platform and services for their intended use and for ensuring appropriate citation of the services and any Datasets accessed through the services (as set out in the commercial-use license and the End User License).</p>
+            </section>      
+      </div>
+    </div>
+
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.min.js" integrity="sha512-zKeerWHHuP3ar7kX2WKBSENzb+GJytFSBL6HrR2nPSR1kOX1qjm+oHooQtbDpDBSITgyl7QXZApvDfDWvKjkUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script>
+
+  <script type="module">
+    import { includeHTML } from '../js/include.js';
+
+    includeHTML('#header', '/common/header.html');
+    includeHTML('#footer', '/common/footer.html', () => {
+      document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
+
+  </script>
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "sq9z63te1u");
+  </script>
+
+</body>
+</html>
