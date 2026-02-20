@@ -83,6 +83,16 @@
           </p>
         </div>
         <hr>
+        <div class="fw-light lh-sm mt-2">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <img src="../images/logo/gpmap.svg" alt="GPMap logo" height="20">
+            <span>The Genotype-Phenotype Map</span>
+          </div>
+          <div id="gpmapStatusText" class="small text-muted">This dataset may not be available in the <a href="https://gpmap.opengwas.io/" target="_blank" rel="noopener">GPMap</a> database yet.</div>
+          <div id="gpmapLinkContainer" class="small mt-1" style="display: none;">
+            <a id="gpmapLink" href="#" target="_blank" rel="noopener"></a>
+          </div>
+        </div>
         <!-- <h5>Relevant datasets</h5>
         <div class="list-group">
           (service unavailable)
@@ -224,6 +234,11 @@
         progressBar.textContent = `Failed to load data: ${err.message || 'unknown error'}`;
       });
 
+      loadData('gpmap').then(gpmap => {
+        renderGPMap(gpmap);
+      }).catch(err => {
+        console.error('Failed to load gpmap', err);
+      });
     })();
 
     function showSpinner() {
@@ -311,6 +326,27 @@
     }
 
     bindCopyHandlers();
+
+    function renderGPMap(gpmap) {
+      if (!Array.isArray(gpmap)) {
+        return;
+      }
+
+      const gpmapStatusText = document.getElementById('gpmapStatusText');
+      const gpmapLinkContainer = document.getElementById('gpmapLinkContainer');
+      const gpmapLink = document.getElementById('gpmapLink');
+
+      if (!gpmap.includes(gwasId)) {
+        gpmapStatusText.innerHTML = 'This dataset may not be available in <a href="https://gpmap.opengwas.io/" target="_blank" rel="noopener">GPMap</a> yet.';
+        gpmapLinkContainer.style.display = 'none';
+        return;
+      }
+
+      gpmapStatusText.innerHTML = 'This dataset may also be available in <a href="https://gpmap.opengwas.io/" target="_blank" rel="noopener">GPMap</a>.';
+      gpmapLink.href = `https://gpmap.opengwas.io/trait.html?id=${encodeURIComponent(gwasId)}`;
+      gpmapLink.textContent = `View ${gwasId} in GPMap`;
+      gpmapLinkContainer.style.display = '';
+    }
 
   </script>
   <script type="text/javascript">

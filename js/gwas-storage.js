@@ -11,6 +11,10 @@ const keys_and_urls = {
   'batches': {
     'key': 'gwasinfo_batches.json',
     'url': '../data/gwasinfo/gwasinfo_batches.json'
+  },
+  'gpmap': {
+    'key': 'gpmap.json',
+    'url': '../data/others/gpmap.json'
   }
 }
 

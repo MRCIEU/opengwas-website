@@ -314,31 +314,33 @@
       });
     }
 
-    const progressBar = document.getElementById('progress');
-    const notes = document.getElementById('notes');
+    (async () => {
+      const progressBar = document.getElementById('progress');
+      const notes = document.getElementById('notes');
 
-    loadData('gwasinfo', progress => {
-      progressBar.style.width = `${progress}%`;
-      progressBar.setAttribute('aria-valuenow', progress);
-      progressBar.textContent = `${progress}%`;
-    }).then(gwasinfo => {
-      const tableData = extractTableData(gwasinfo);
-      notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${ new Date(gwasinfo['metadata']['updated_at'] * 1000).toUTCString()}. Displayed in random order. <b>The table is horizontally scrollable - 'Subcategory' is the last column.</b>`;
-      progressBar.parentElement.style.display = 'none';
-      populateGwasTable(tableData);
-    }).catch(err => {
-      progressBar.classList.add('bg-danger');
-      progressBar.style.width = '100%';
-      progressBar.textContent = 'Failed to load data';
-    });
+      loadData('gwasinfo', progress => {
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = `${progress}%`;
+      }).then(gwasinfo => {
+        const tableData = extractTableData(gwasinfo);
+        notes.innerHTML = `Listing ${gwasinfo['metadata']['size'].toLocaleString()} datasets updated at ${ new Date(gwasinfo['metadata']['updated_at'] * 1000).toUTCString()}. Displayed in random order. <b>The table is horizontally scrollable - 'Subcategory' is the last column.</b>`;
+        progressBar.parentElement.style.display = 'none';
+        populateGwasTable(tableData);
+      }).catch(err => {
+        progressBar.classList.add('bg-danger');
+        progressBar.style.width = '100%';
+        progressBar.textContent = 'Failed to load data';
+      });
 
-    loadData('batches').then(batches => {
-      populateBatchesTable(batches);
-    }).catch(err => {
-      document.getElementById('batchesTableBody').innerHTML = `
-        <tr><td colspan="4" class="text-danger">Failed to load batches data.</td></tr>
-      `;
-    });
+      loadData('batches').then(batches => {
+        populateBatchesTable(batches);
+      }).catch(err => {
+        document.getElementById('batchesTableBody').innerHTML = `
+          <tr><td colspan="4" class="text-danger">Failed to load batches data.</td></tr>
+        `;
+      });
+    })();
 
   </script>
   <script type="text/javascript">
